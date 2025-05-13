@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Human Bingo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      min-height: 100vh;
+      background-color: #f0f0f0;
+    }
+    h1 {
+      font-size: 30px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      max-width: 95%;
+      margin: 0 auto;
+    }
+    .cell {
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 10px;
+      position: relative;
+      background-color: #ffffff;
+    }
+    .cell.done {
+      background-color: #c8e6c9;
+    }
+    .prompt {
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      margin-top: 10px;
+    }
+    .controls button {
+      font-size: 12px;
+      padding: 8px 12px;
+      margin-bottom: 5px;
+      width: 100%;
+      max-width: 200px;
+    }
+    .camera-input {
+      display: none;
+    }
+    .image-preview {
+      margin-top: 10px;
+    }
+    img {
+      max-width: 100%;
+      max-height: 150px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Human Bingo</h1>
+  <div class="grid" id="bingoGrid"></div>
+
+  <script>
+    const prompts = [
+      "Find someone with a red scarf", "Someone who can whistle", "A person who loves cats",
+      "Someone wearing blue", "Knows a magic trick", "Wears glasses",
+      "Can recite a Bible verse", "Has the same birthday month as you", "Can do 10 pushups",
+      "Loves spicy food", "Someone who’s left-handed", "Can sing a hymn from memory",
+      "Find someone new you’ve met today", "Plays an instrument", "Knows your hometown",
+      "Someone who’s been to another country", "Wearing sandals", "Brings a journal",
+      "Loves coffee", "Volunteered before", "Has more than 3 siblings",
+      "Has curly hair", "Loves pineapple on pizza", "Carries a water bottle", "Can dance"
+    ];
+
+    const uploadUrl = "https://script.google.com/macros/s/AKfycbxbU0YokZLeuYQrZablyEYaMk9rNh_aYfNHGLoB8hArNUXs_dWy0Gp4_YWDvruR_qT2jg/exec";
+    const grid = document.getElementById("bingoGrid");
+
+    prompts.forEach((prompt, index) => {
+      const cell = document.createElement("div");
+      cell.classList.add("cell");
+
+      const label = document.createElement("div");
+      label.classList.add("prompt");
+      label.textContent = prompt;
+
+      const controls = document.createElement("div");
+      controls.classList.add("controls");
+
+      const takePicBtn = document.createElement("button");
+      takePicBtn.textContent = "Take a Picture!";
+      const removePicBtn = document.createElement("button");
+      removePicBtn.textContent = "Remove Picture :(";
+      removePicBtn.disabled = true;
+
+      const uploadBtn = document.createElement("button");
+      uploadBtn.textContent = "Upload Picture";
+      uploadBtn.disabled = true;
+
+      const cameraInput = document.createElement("input");
+      cameraInput.type = "file";
+      cameraInput.accept = "image/*";
+      cameraInput.capture = "environment";
+      cameraInput.classList.add("camera-input");
+
+      const imagePreview = document.createElement("div");
+      imagePreview.classList.add("image-preview");
+
+      let fileToUpload = null;
+
+      takePicBtn.onclick = () => cameraInput.click();
+
+      cameraInput.onchange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const imgElement = document.createElement("img");
+            imgElement.src = e.target.result;
+            imagePreview.innerHTML = "";
+            imagePreview.appendChild(imgElement);
+            uploadBtn.disabled = false;
+            removePicBtn.disabled = false;
+            fileToUpload = file;
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+
+      removePicBtn.onclick = () => {
+        cameraInput.value = "";
+        imagePreview.innerHTML = "";
+        uploadBtn.disabled = true;
+        removePicBtn.disabled = true;
+        fileToUpload = null;
+      };
+
+      uploadBtn.onclick = async () => {
+        if (!fileToUpload) return alert("No image selected!");
+
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+          const base64Data = reader.result.split(",")[1];
+
+          try {
+            const response = await fetch(uploadUrl, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/octet-stream"
+              },
+              body: base64Data
+            });
+
+            const resultText = await response.text();
+            alert(resultText);
+            if (resultText.includes("successful")) {
+              cell.classList.add("done");
+            }
+          } catch (err) {
+            alert("Upload failed. Try again.");
+            console.error(err);
+          }
+        };
+        reader.readAsDataURL(fileToUpload);
+      };
+
+      controls.appendChild(takePicBtn);
+      controls.appendChild(removePicBtn);
+      controls.appendChild(uploadBtn);
+      controls.appendChild(cameraInput);
+      controls.appendChild(imagePreview);
+
+      cell.appendChild(label);
+      cell.appendChild(controls);
+      grid.appendChild(cell);
+    });
+  </script>
+</body>
+</html>
