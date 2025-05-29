@@ -34,8 +34,8 @@
             border-radius: 10px;
             position: relative;
             background-color: #ffffff;
-            display: flex; /* Use flexbox for layout control within the cell */
-            flex-direction: column; /* Stack items vertically by default */
+            display: flex;
+            flex-direction: column;
         }
         .cell.done {
             background-color: #a5d6a7;
@@ -53,7 +53,7 @@
             font-size: 14px;
             font-weight: bold;
             margin-bottom: 10px;
-            order: 1; /* Place prompt at the top */
+            order: 1;
             flex-grow: 0;
         }
         .controls {
@@ -62,7 +62,7 @@
             align-items: center;
             gap: 8px;
             margin-top: 10px;
-            order: 3; /* Buttons at the bottom */
+            order: 3;
             flex-grow: 0;
         }
         .controls button {
@@ -123,16 +123,14 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            order: 2;  /* Image preview in the middle */
-            flex-grow: 1; /* Allow image preview to take up available space */
+            order: 2;
+            flex-grow: 1;
         }
         .image-preview img {
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
         }
-
-
     </style>
 </head>
 <body>
@@ -166,8 +164,8 @@
             "Carries a water bottle",
             "Can dance",
         ];
-        const uploadUrl =
-            "https://script.google.com/macros/s/AKfycbxbU0YokZLeuYQrZablyEYaMk9rNh_aYfNHGLoB8hArNUXs_dWy0Gp4_YWDvruR_qT2jg/exec";
+        // IMPORTANT: Replace this with your deployed Apps Script Web App URL
+        const uploadUrl = "https://script.google.com/macros/s/AKfycbybwMzXdKw20g11AetE_WhYVZenIRhFOg0OBP4woJP1kGBWJ9v_QVNioAEvvN34wXeCyg/exec"; // Updated URL
         const grid = document.getElementById("bingoGrid");
         prompts.forEach((prompt, index) => {
             const cell = document.createElement("div");
@@ -208,6 +206,7 @@
                         removePicBtn.disabled = false;
                         removePicBtn.classList.add("active");
                         takePicBtn.disabled = true;
+                        fileToUpload = file; // Store the file object for upload
                     };
                     reader.readAsDataURL(file);
                 } else {
@@ -216,6 +215,7 @@
                     uploadBtn.disabled = true;
                     uploadBtn.classList.remove("active");
                     takePicBtn.disabled = false;
+                    fileToUpload = null;
                 }
             };
             removePicBtn.onclick = () => {
@@ -237,9 +237,9 @@
                         const response = await fetch(uploadUrl, {
                             method: "POST",
                             headers: {
-                                "Content-Type": "application/octet-stream",
+                                "Content-Type": "application/x-www-form-urlencoded",
                             },
-                            body: base64Data,
+                            body: `image=${encodeURIComponent(base64Data)}&type=${encodeURIComponent(fileToUpload.type)}`,
                         });
                         const resultText = await response.text();
                         alert(resultText);
@@ -264,7 +264,7 @@
             controls.appendChild(cameraInput);
             controls.appendChild(imagePreview);
             cell.appendChild(label);
-            cell.appendChild(imagePreview); // added this line
+            cell.appendChild(imagePreview);
             cell.appendChild(controls);
             grid.appendChild(cell);
         });
