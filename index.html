@@ -283,7 +283,7 @@
         ];
 
         // IMPORTANT: This should be your DEPLOYED Apps Script Web App URL (ending in /exec)
-        const uploadUrl = "https://script.google.com/macros/s/AKfycbw8q4MQnbQCwj-U1K49kOHmP9xvmLWgg6TloWhLG3YMJGcPRK5aIF0nvYohTbxID0-Dpg/exec";
+        const uploadUrl = "https://script.google.com/macros/s/AKfycbwGdxK9gJKrmO5SD3i503D3gBLUcOF-b6okPoIimj2r6i4rUWKgsvQkG7QCrELMhpVdZQ/exec";
 
         const grid = document.getElementById("bingoGrid");
         const messageModal = document.getElementById('messageModal');
@@ -314,7 +314,7 @@
         }
 
         // Check if the uploadUrl is still the placeholder
-        if (uploadUrl === "https://script.google.com/macros/s/AKfycbw8q4MQnbQCwj-U1K49kOHmP9xvmLWgg6TloWhLG3YMJGcPRK5aIF0nvYohTbxID0-Dpg/exec") {
+        if (uploadUrl === "YOUR_APPS_SCRIPT_WEB_APP_URL_HERE") {
             showModal("Configuration needed: Please update the 'uploadUrl' in the script with your Google Apps Script web app URL.");
         }
 
@@ -405,7 +405,7 @@
                     return;
                 }
                 // Check if the uploadUrl is still the placeholder before attempting upload
-                if (uploadUrl === "https://script.google.com/macros/s/AKfycbw8q4MQnbQCwj-U1K49kOHmP9xvmLWgg6TloWhLG3YMJGcPRK5aIF0nvYohTbxID0-Dpg/exec") {
+                if (uploadUrl === "YOUR_APPS_SCRIPT_WEB_APP_URL_HERE") {
                     showModal("Upload failed: Apps Script URL is not configured in the HTML. Please set the 'uploadUrl' variable.");
                     return;
                 }
