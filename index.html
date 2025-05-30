@@ -28,13 +28,19 @@
         }
         .grid {
             display: grid;
-            grid-template-columns: repeat(1, 1fr); /* Default to 1 column for mobile */
-            gap: 15px; /* Increased gap */
-            width: 100%;
-            max-width: 1200px; /* Max width for larger screens */
-            margin: 0 auto;
+            /* Always 5 columns. Cells won't shrink below 90px.
+               If 5*90px + gaps > viewport, horizontal scroll will occur on the page. */
+            grid-template-columns: repeat(5, minmax(90px, 1fr));
+            gap: 10px; /* Adjusted gap */
+            width: 100%; /* Makes grid try to fit its container width initially */
+            max-width: 1200px; /* Max width for larger screens, centered by body's flex */
+            /* margin: 0 auto; (Centering handled by body's flex properties when grid is narrower than viewport) */
+            padding: 5px; /* Optional: padding around the cells within the grid container */
+            box-sizing: border-box; /* Ensures padding and border are included in width/height */
         }
-        /* Responsive grid columns */
+        /* REMOVED media queries that changed grid-template-columns for .grid
+           It will now always be 5 columns as defined above.
+        */
         @media (min-width: 640px) { /* sm breakpoint */
             .grid {
                 grid-template-columns: repeat(2, 1fr);
