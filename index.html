@@ -1,492 +1,468 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Human Bingo</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            font-family: 'Inter', Arial, sans-serif; /* Using Inter font */
-            text-align: center;
-            margin: 0; /* Reset margin */
-            padding: 20px; /* Add padding to body */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            min-height: 100vh;
-            background-color: #f3f4f6; /* Tailwind gray-100 */
-        }
-        h1 {
-            font-size: 2.25rem; /* Tailwind text-4xl */
-            line-height: 2.5rem; /* Tailwind leading-10 */
-            text-transform: uppercase;
-            margin-bottom: 20px;
-            color: #1f2937; /* Tailwind gray-800 */
-            font-weight: 700; /* Tailwind font-bold */
-        }
-        .grid {
-            display: grid;
-            /* Always 5 columns. Cells won't shrink below 90px.
-               If 5*90px + gaps > viewport, horizontal scroll will occur on the page. */
-            grid-template-columns: repeat(5, minmax(90px, 1fr));
-            gap: 10px; /* Adjusted gap */
-            width: 100%; /* Makes grid try to fit its container width initially */
-            max-width: 1200px; /* Max width for larger screens, centered by body's flex */
-            /* margin: 0 auto; (Centering handled by body's flex properties when grid is narrower than viewport) */
-            padding: 5px; /* Optional: padding around the cells within the grid container */
-            box-sizing: border-box; /* Ensures padding and border are included in width/height */
-        }
-        /* REMOVED media queries that changed grid-template-columns for .grid
-           It will now always be 5 columns as defined above.
-        */
-        @media (min-width: 640px) { /* sm breakpoint */
-            .grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        @media (min-width: 768px) { /* md breakpoint */
-            .grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-        @media (min-width: 1024px) { /* lg breakpoint */
-            .grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
-        @media (min-width: 1280px) { /* xl breakpoint */
-            .grid {
-                grid-template-columns: repeat(5, 1fr);
-            }
-        }
-        .cell {
-            border: 1px solid #d1d5db; /* Tailwind gray-300 */
-            padding: 15px;
-            border-radius: 12px; /* Tailwind rounded-xl */
-            position: relative;
-            background-color: #ffffff; /* Tailwind white */
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Tailwind shadow-md */
-            transition: transform 0.2s ease-in-out;
-            min-height: 180px; /* Give cells a bit more min-height for consistency */
-        }
-        .cell:hover {
-            transform: translateY(-5px); /* Slight lift on hover */
-        }
-        .cell.done {
-            background-color: #d1fae5; /* Tailwind green-100 */
-            border-color: #6ee7b7; /* Tailwind green-300 */
-        }
-        .cell.done::after {
-            content: "✔";
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 24px;
-            color: #059669; /* Tailwind green-600 */
-            font-weight: bold;
-        }
-        .prompt {
-            font-size: 0.875rem; /* Tailwind text-sm */
-            font-weight: 600; /* Tailwind font-semibold */
-            margin-bottom: 12px;
-            color: #374151; /* Tailwind gray-700 */
-            min-height: 40px; /* Ensure prompts have some min height */
-        }
-        .controls {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            margin-top: auto; /* Push controls to the bottom */
-        }
-        .controls button {
-            font-size: 0.875rem; /* Tailwind text-sm */
-            padding: 10px 15px;
-            width: 100%;
-            border-radius: 8px; /* Tailwind rounded-lg */
-            border: none;
-            font-weight: 500; /* Tailwind font-medium */
-            transition: background-color 0.3s ease, color 0.3s ease, opacity 0.3s ease;
-            cursor: pointer;
-        }
-        /* Default button state (often for disabled) */
-        .controls button:disabled {
-            background-color: #e5e7eb; /* Tailwind gray-200 */
-            color: #9ca3af; /* Tailwind gray-400 */
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Human Bingo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', Arial, sans-serif; /* Using Inter font */
+            text-align: center;
+            margin: 0; /* Reset margin */
+            padding: 20px; /* Add padding to body */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #f3f4f6; /* Tailwind gray-100 */
+            overflow-x: auto; /* Allow horizontal scrolling for the entire body */
+        }
+        h1 {
+            font-size: 2.25rem; /* Tailwind text-4xl */
+            line-height: 2.5rem; /* Tailwind leading-10 */
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            color: #1f2937; /* Tailwind gray-800 */
+            font-weight: 700; /* Tailwind font-bold */
+        }
+        .grid {
+            display: grid;
+            /* Modified to always be 5 columns, with a minimum width for each */
+            grid-template-columns: repeat(5, minmax(100px, 1fr));
+            gap: 15px; /* Increased gap */
+            width: 100%;
+            max-width: 1200px; /* Max width for larger screens */
+            margin: 0 auto;
+        }
+        /* REMOVED all @media queries for .grid to ensure it's always 5x5 */
+        .cell {
+            border: 1px solid #d1d5db; /* Tailwind gray-300 */
+            padding: 15px; /* Increased padding */
+            border-radius: 12px; /* Tailwind rounded-xl */
+            position: relative;
+            background-color: #ffffff; /* Tailwind white */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Distribute space */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Tailwind shadow-md */
+            transition: transform 0.2s ease-in-out;
+            min-height: 200px; /* Added min-height for consistent cell size */
+        }
+        .cell:hover {
+            transform: translateY(-5px); /* Slight lift on hover */
+        }
+        .cell.done {
+            background-color: #d1fae5; /* Tailwind green-100 */
+            border-color: #6ee7b7; /* Tailwind green-300 */
+        }
+        .cell.done::after {
+            content: "✔";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            color: #059669; /* Tailwind green-600 */
+            font-weight: bold;
+        }
+        .prompt {
+            font-size: 0.875rem; /* Tailwind text-sm */
+            font-weight: 600; /* Tailwind font-semibold */
+            margin-bottom: 12px;
+            color: #374151; /* Tailwind gray-700 */
+            min-height: 40px; /* Ensure prompts have some min height */
+        }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            margin-top: auto; /* Push controls to the bottom */
+        }
+        .controls button {
+            font-size: 0.875rem; /* Tailwind text-sm */
+            padding: 10px 15px;
+            width: 100%;
+            border-radius: 8px; /* Tailwind rounded-lg */
+            border: none;
+            font-weight: 500; /* Tailwind font-medium */
+            transition: background-color 0.3s ease, color 0.3s ease, opacity 0.3s ease;
+            cursor: pointer;
+        }
+        /* Default button state (often for disabled) */
+        .controls button:disabled {
+            background-color: #e5e7eb; /* Tailwind gray-200 */
+            color: #9ca3af; /* Tailwind gray-400 */
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
 
-        /* Take Picture Button */
-        .controls button.take-pic-btn {
-            background-color: #3b82f6; /* Tailwind blue-500 */
-            color: white;
-        }
-        .controls button.take-pic-btn:hover:not(:disabled) {
-            background-color: #2563eb; /* Tailwind blue-600 */
-        }
+        /* Take Picture Button */
+        .controls button.take-pic-btn {
+            background-color: #3b82f6; /* Tailwind blue-500 */
+            color: white;
+        }
+        .controls button.take-pic-btn:hover:not(:disabled) {
+            background-color: #2563eb; /* Tailwind blue-600 */
+        }
 
-        /* Remove Picture Button */
-        .controls button.remove-pic-btn {
-            background-color: #ef4444; /* Tailwind red-500 */
-            color: white;
-        }
-        .controls button.remove-pic-btn:hover:not(:disabled) {
-            background-color: #dc2626; /* Tailwind red-600 */
-        }
-         /* Make remove button initially appear disabled if no pic */
-        .controls button.remove-pic-btn:not(.active) {
-            background-color: #e5e7eb; /* Tailwind gray-200 */
-            color: #9ca3af; /* Tailwind gray-400 */
-            cursor: not-allowed;
-        }
-        .controls button.remove-pic-btn.active {
-             background-color: #ef4444; /* Tailwind red-500 */
-            color: white;
-            cursor: pointer;
-        }
-         .controls button.remove-pic-btn.active:hover {
-            background-color: #dc2626; /* Tailwind red-600 */
-        }
+        /* Remove Picture Button */
+        .controls button.remove-pic-btn {
+            background-color: #ef4444; /* Tailwind red-500 */
+            color: white;
+        }
+        .controls button.remove-pic-btn:hover:not(:disabled) {
+            background-color: #dc2626; /* Tailwind red-600 */
+        }
+         /* Make remove button initially appear disabled if no pic */
+        .controls button.remove-pic-btn:not(.active) {
+            background-color: #e5e7eb; /* Tailwind gray-200 */
+            color: #9ca3af; /* Tailwind gray-400 */
+            cursor: not-allowed;
+        }
+        .controls button.remove-pic-btn.active {
+             background-color: #ef4444; /* Tailwind red-500 */
+            color: white;
+            cursor: pointer;
+        }
+         .controls button.remove-pic-btn.active:hover {
+            background-color: #dc2626; /* Tailwind red-600 */
+        }
 
 
-        /* Upload Picture Button */
-        .controls button.upload-btn {
-            background-color: #10b981; /* Tailwind green-500 */
-            color: white;
-        }
-         .controls button.upload-btn:hover:not(:disabled) {
-            background-color: #059669; /* Tailwind green-600 */
-        }
-        /* Make upload button initially appear disabled if no pic */
-        .controls button.upload-btn:not(.active) {
-            background-color: #e5e7eb; /* Tailwind gray-200 */
-            color: #9ca3af; /* Tailwind gray-400 */
-            cursor: not-allowed;
-        }
-        .controls button.upload-btn.active {
-            background-color: #10b981; /* Tailwind green-500 */
-            color: white;
-            cursor: pointer;
-        }
-        .controls button.upload-btn.active:hover {
-            background-color: #059669; /* Tailwind green-600 */
-        }
+        /* Upload Picture Button */
+        .controls button.upload-btn {
+            background-color: #10b981; /* Tailwind green-500 */
+            color: white;
+        }
+         .controls button.upload-btn:hover:not(:disabled) {
+            background-color: #059669; /* Tailwind green-600 */
+        }
+        /* Make upload button initially appear disabled if no pic */
+        .controls button.upload-btn:not(.active) {
+            background-color: #e5e7eb; /* Tailwind gray-200 */
+            color: #9ca3af; /* Tailwind gray-400 */
+            cursor: not-allowed;
+        }
+        .controls button.upload-btn.active {
+            background-color: #10b981; /* Tailwind green-500 */
+            color: white;
+            cursor: pointer;
+        }
+        .controls button.upload-btn.active:hover {
+            background-color: #059669; /* Tailwind green-600 */
+        }
 
 
-        .camera-input {
-            display: none;
-        }
-        .image-preview {
-            margin-top: 10px;
-            margin-bottom: 10px; /* Add margin below preview */
-            width: 100%;
-            height: 150px; /* Fixed height for consistent layout */
-            border: 1px dashed #9ca3af; /* Tailwind gray-400 */
-            border-radius: 8px; /* Tailwind rounded-lg */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            background-color: #f9fafb; /* Tailwind gray-50 */
-        }
-        .image-preview img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            border-radius: 4px; /* Slightly rounded image corners */
-        }
-        .image-preview:empty::before {
-            content: "No image selected";
-            color: #6b7280; /* Tailwind gray-500 */
-            font-size: 0.875rem;
-        }
+        .camera-input {
+            display: none;
+        }
+        .image-preview {
+            margin-top: 10px;
+            margin-bottom: 10px; /* Add margin below preview */
+            width: 100%;
+            height: 150px; /* Fixed height for consistent layout */
+            border: 1px dashed #9ca3af; /* Tailwind gray-400 */
+            border-radius: 8px; /* Tailwind rounded-lg */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background-color: #f9fafb; /* Tailwind gray-50 */
+        }
+        .image-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 4px; /* Slightly rounded image corners */
+        }
+        .image-preview:empty::before {
+            content: "No image selected";
+            color: #6b7280; /* Tailwind gray-500 */
+            font-size: 0.875rem;
+        }
 
-        /* Modal styles */
-        .modal {
-            display: none; /* Hidden by default */
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.5); /* Dim background */
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background-color: #ffffff;
-            margin: auto;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-        }
-        .modal-content p {
-            margin-bottom: 20px;
-            font-size: 1rem;
-            color: #374151;
-        }
-        .modal-button {
-            background-color: #3b82f6; /* Tailwind blue-500 */
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: background-color 0.2s;
-        }
-        .modal-button:hover {
-            background-color: #2563eb; /* Tailwind blue-600 */
-        }
-        .loading-spinner {
-            border: 4px solid #f3f3f3; /* Light grey */
-            border-top: 4px solid #3b82f6; /* Blue */
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 10px auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        /* Modal styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5); /* Dim background */
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #ffffff;
+            margin: auto;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .modal-content p {
+            margin-bottom: 20px;
+            font-size: 1rem;
+            color: #374151;
+        }
+        .modal-button {
+            background-color: #3b82f6; /* Tailwind blue-500 */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+        }
+        .modal-button:hover {
+            background-color: #2563eb; /* Tailwind blue-600 */
+        }
+        .loading-spinner {
+            border: 4px solid #f3f3f3; /* Light grey */
+            border-top: 4px solid #3b82f6; /* Blue */
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-    </style>
+    </style>
 </head>
 <body>
-    <h1>Human Bingo Challenge</h1>
-    <div class="grid" id="bingoGrid"></div>
+    <h1>Human Bingo Challenge</h1>
+    <div class="grid" id="bingoGrid"></div>
 
-    <div id="messageModal" class="modal">
-        <div class="modal-content">
-            <p id="modalMessageText"></p>
-            <div id="modalSpinner" class="loading-spinner" style="display: none;"></div>
-            <button id="modalCloseButton" class="modal-button">OK</button>
-        </div>
-    </div>
+    <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <p id="modalMessageText"></p>
+            <div id="modalSpinner" class="loading-spinner" style="display: none;"></div>
+            <button id="modalCloseButton" class="modal-button">OK</button>
+        </div>
+    </div>
 
-    <script>
-        const prompts = [
-            "Find someone with a red scarf", "Someone who can whistle", "A person who loves cats",
-            "Someone wearing blue", "Knows a magic trick", "Wears glasses",
-            "Can recite a Bible verse", "Has the same birthday month as you", "Can do 10 pushups",
-            "Loves spicy food", "Someone who’s left-handed", "Can sing a hymn from memory",
-            "Find someone new you’ve met today", "Plays an instrument", "Knows your hometown",
-            "Someone who’s been to another country", "Wearing sandals", "Brings a journal",
-            "Loves coffee", "Volunteered before", "Has more than 3 siblings",
-            "Has curly hair", "Loves pineapple on pizza", "Carries a water bottle", "Can dance",
-        ];
+    <script>
+        const prompts = [
+            "Find someone with a red scarf", "Someone who can whistle", "A person who loves cats",
+            "Someone wearing blue", "Knows a magic trick", "Wears glasses",
+            "Can recite a Bible verse", "Has the same birthday month as you", "Can do 10 pushups",
+            "Loves spicy food", "Someone who’s left-handed", "Can sing a hymn from memory",
+            "Find someone new you’ve met today", "Plays an instrument", "Knows your hometown",
+            "Someone who’s been to another country", "Wearing sandals", "Brings a journal",
+            "Loves coffee", "Volunteered before", "Has more than 3 siblings",
+            "Has curly hair", "Loves pineapple on pizza", "Carries a water bottle", "Can dance",
+        ];
 
-        // IMPORTANT: This should be your DEPLOYED Apps Script Web App URL (ending in /exec)
-        const uploadUrl = "https://script.google.com/macros/s/AKfycbyHgxaXYRUpFWyzfYU6cByhuRGkhPQuYlcM7dUGNZOlZgg3SkVprL0_JU6RmPt3RsdoFQ/exec";
+        // IMPORTANT: This should be your DEPLOYED Apps Script Web App URL (ending in /exec)
+        const uploadUrl = "https://script.google.com/macros/s/AKfycbyHgxaXYRUpFWyzfYU6cByhuRGkhPQuYlcM7dUGNZOlZgg3SkVprL0_JU6RmPt3RsdoFQ/exec";
 
-        const grid = document.getElementById("bingoGrid");
-        const messageModal = document.getElementById('messageModal');
-        const modalMessageText = document.getElementById('modalMessageText');
-        const modalCloseButton = document.getElementById('modalCloseButton');
-        const modalSpinner = document.getElementById('modalSpinner');
+        const grid = document.getElementById("bingoGrid");
+        const messageModal = document.getElementById('messageModal');
+        const modalMessageText = document.getElementById('modalMessageText');
+        const modalCloseButton = document.getElementById('modalCloseButton');
+        const modalSpinner = document.getElementById('modalSpinner');
 
-        // Function to show modal
-        function showModal(message, showSpinner = false) {
-            modalMessageText.textContent = message;
-            modalSpinner.style.display = showSpinner ? 'block' : 'none';
-            modalCloseButton.style.display = showSpinner ? 'none' : 'block'; // Hide button if spinner shown
-            messageModal.style.display = 'flex';
-        }
+        // Function to show modal
+        function showModal(message, showSpinner = false) {
+            modalMessageText.textContent = message;
+            modalSpinner.style.display = showSpinner ? 'block' : 'none';
+            modalCloseButton.style.display = showSpinner ? 'none' : 'block'; // Hide button if spinner shown
+            messageModal.style.display = 'flex';
+        }
 
-        // Close modal
-        modalCloseButton.onclick = () => {
-            messageModal.style.display = 'none';
-        };
-        // Close modal if user clicks outside of it
-        window.onclick = (event) => {
-            if (event.target == messageModal) {
-                // only close if spinner is not active
-                if (modalSpinner.style.display === 'none') {
-                     messageModal.style.display = "none";
-                }
-            }
-        }
+        // Close modal
+        modalCloseButton.onclick = () => {
+            messageModal.style.display = 'none';
+        };
+        // Close modal if user clicks outside of it
+        window.onclick = (event) => {
+            if (event.target == messageModal) {
+                // only close if spinner is not active
+                if (modalSpinner.style.display === 'none') {
+                     messageModal.style.display = "none";
+                }
+            }
+        }
 
-        // Check if the uploadUrl is still the placeholder
-        if (uploadUrl === "YOUR_APPS_SCRIPT_WEB_APP_URL_HERE") {
-            showModal("Configuration needed: Please update the 'uploadUrl' in the script with your Google Apps Script web app URL.");
-        }
+        // Check if the uploadUrl is still the placeholder
+        if (uploadUrl === "YOUR_APPS_SCRIPT_WEB_APP_URL_HERE") {
+            showModal("Configuration needed: Please update the 'uploadUrl' in the script with your Google Apps Script web app URL.");
+        }
 
 
-        prompts.forEach((promptText, index) => {
-            const cell = document.createElement("div");
-            cell.classList.add("cell");
-            cell.dataset.id = `cell-${index}`; // Unique ID for the cell
+        prompts.forEach((promptText, index) => {
+            const cell = document.createElement("div");
+            cell.classList.add("cell");
+            cell.dataset.id = `cell-${index}`; // Unique ID for the cell
 
-            const label = document.createElement("div");
-            label.classList.add("prompt");
-            label.textContent = promptText;
+            const label = document.createElement("div");
+            label.classList.add("prompt");
+            label.textContent = promptText;
 
-            const imagePreview = document.createElement("div");
-            imagePreview.classList.add("image-preview");
+            const imagePreview = document.createElement("div");
+            imagePreview.classList.add("image-preview");
 
-            const controls = document.createElement("div");
-            controls.classList.add("controls");
+            const controls = document.createElement("div");
+            controls.classList.add("controls");
 
-            const takePicBtn = document.createElement("button");
-            takePicBtn.textContent = "Take/Select Picture";
-            takePicBtn.classList.add("take-pic-btn");
+            const takePicBtn = document.createElement("button");
+            takePicBtn.textContent = "Take/Select Picture";
+            takePicBtn.classList.add("take-pic-btn");
 
-            const removePicBtn = document.createElement("button");
-            removePicBtn.textContent = "Remove Picture";
-            removePicBtn.classList.add("remove-pic-btn");
-            removePicBtn.disabled = true; // Initially disabled
+            const removePicBtn = document.createElement("button");
+            removePicBtn.textContent = "Remove Picture";
+            removePicBtn.classList.add("remove-pic-btn");
+            removePicBtn.disabled = true; // Initially disabled
 
-            const uploadBtn = document.createElement("button");
-            uploadBtn.textContent = "Upload Picture";
-            uploadBtn.classList.add("upload-btn");
-            uploadBtn.disabled = true; // Initially disabled
+            const uploadBtn = document.createElement("button");
+            uploadBtn.textContent = "Upload Picture";
+            uploadBtn.classList.add("upload-btn");
+            uploadBtn.disabled = true; // Initially disabled
 
-            const cameraInput = document.createElement("input");
-            cameraInput.type = "file";
-            cameraInput.accept = "image/*";
-            cameraInput.capture = "environment";
-            cameraInput.classList.add("camera-input");
-            cameraInput.id = `camera-input-${index}`; 
+            const cameraInput = document.createElement("input");
+            cameraInput.type = "file";
+            cameraInput.accept = "image/*";
+            cameraInput.capture = "environment";
+            cameraInput.classList.add("camera-input");
+            cameraInput.id = `camera-input-${index}`; 
 
-            let fileToUpload = null;
+            let fileToUpload = null;
 
-            takePicBtn.onclick = () => cameraInput.click();
+            takePicBtn.onclick = () => cameraInput.click();
 
-            cameraInput.onchange = (event) => {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        const imgElement = document.createElement("img");
-                        imgElement.src = e.target.result;
-                        imagePreview.innerHTML = ""; 
-                        imagePreview.appendChild(imgElement);
+            cameraInput.onchange = (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const imgElement = document.createElement("img");
+                        imgElement.src = e.target.result;
+                        imagePreview.innerHTML = ""; 
+                        imagePreview.appendChild(imgElement);
 
-                        uploadBtn.disabled = false;
-                        uploadBtn.classList.add("active");
-                        removePicBtn.disabled = false;
-                        removePicBtn.classList.add("active");
-                        takePicBtn.disabled = true; 
-                        fileToUpload = file;
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    imagePreview.innerHTML = ""; 
-                    removePicBtn.disabled = true;
-                    removePicBtn.classList.remove("active");
-                    uploadBtn.disabled = true;
-                    uploadBtn.classList.remove("active");
-                    takePicBtn.disabled = false;
-                    fileToUpload = null;
-                }
-            };
+                        uploadBtn.disabled = false;
+                        uploadBtn.classList.add("active");
+                        removePicBtn.disabled = false;
+                        removePicBtn.classList.add("active");
+                        takePicBtn.disabled = true; 
+                        fileToUpload = file;
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    imagePreview.innerHTML = ""; 
+                    removePicBtn.disabled = true;
+                    removePicBtn.classList.remove("active");
+                    uploadBtn.disabled = true;
+                    uploadBtn.classList.remove("active");
+                    takePicBtn.disabled = false;
+                    fileToUpload = null;
+                }
+            };
 
-            removePicBtn.onclick = () => {
-                cameraInput.value = ""; 
-                imagePreview.innerHTML = ""; 
-                removePicBtn.disabled = true;
-                removePicBtn.classList.remove("active");
-                uploadBtn.disabled = true;
-                uploadBtn.classList.remove("active");
-                takePicBtn.disabled = false; 
-                fileToUpload = null;
-            };
+            removePicBtn.onclick = () => {
+                cameraInput.value = ""; 
+                imagePreview.innerHTML = ""; 
+                removePicBtn.disabled = true;
+                removePicBtn.classList.remove("active");
+                uploadBtn.disabled = true;
+                uploadBtn.classList.remove("active");
+                takePicBtn.disabled = false; 
+                fileToUpload = null;
+            };
 
-            uploadBtn.onclick = async () => {
-                if (!fileToUpload) {
-                    showModal("No image selected to upload!");
-                    return;
-                }
-                // Check if the uploadUrl is still the placeholder before attempting upload
-                if (uploadUrl === "YOUR_APPS_SCRIPT_WEB_APP_URL_HERE") {
-                    showModal("Upload failed: Apps Script URL is not configured in the HTML. Please set the 'uploadUrl' variable.");
-                    return;
-                }
+            uploadBtn.onclick = async () => {
+                if (!fileToUpload) {
+                    showModal("No image selected to upload!");
+                    return;
+                }
+                // Check if the uploadUrl is still the placeholder before attempting upload
+                if (uploadUrl === "YOUR_APPS_SCRIPT_WEB_APP_URL_HERE") {
+                    showModal("Upload failed: Apps Script URL is not configured in the HTML. Please set the 'uploadUrl' variable.");
+                    return;
+                }
 
-                showModal("Uploading image...", true); 
-                uploadBtn.disabled = true; 
-                uploadBtn.textContent = "Uploading...";
+                showModal("Uploading image...", true); 
+                uploadBtn.disabled = true; 
+                uploadBtn.textContent = "Uploading...";
 
-                const reader = new FileReader();
-                reader.onloadend = async () => {
-                    const base64Data = reader.result.split(",")[1];
-                    try {
-                        const response = await fetch(uploadUrl, {
-                            method: "POST",
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                            },
-                            body: `image=${encodeURIComponent(base64Data)}&type=${encodeURIComponent(fileToUpload.type)}&filename=${encodeURIComponent(fileToUpload.name)}&prompt=${encodeURIComponent(promptText)}`
-                        });
+                const reader = new FileReader();
+                reader.onloadend = async () => {
+                    const base64Data = reader.result.split(",")[1];
+                    try {
+                        const response = await fetch(uploadUrl, {
+                            method: "POST",
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: `image=${encodeURIComponent(base64Data)}&type=${encodeURIComponent(fileToUpload.type)}&filename=${encodeURIComponent(fileToUpload.name)}&prompt=${encodeURIComponent(promptText)}`
+                        });
 
-                        const resultText = await response.text(); 
+                        const resultText = await response.text(); 
 
-                        if (!response.ok) {
-                            console.error("Upload failed with status:", response.status, resultText);
-                            showModal(`Upload failed: ${resultText || response.statusText}`);
-                        } else if (resultText.toLowerCase().includes("success")) {
-                            showModal(resultText);
-                            cell.classList.add("done");
-                            takePicBtn.disabled = true;
-                            removePicBtn.disabled = true;
-                            removePicBtn.classList.remove("active");
-                            uploadBtn.disabled = true;
-                            uploadBtn.classList.remove("active");
-                            uploadBtn.textContent = "Uploaded";
-                        } else {
-                            console.warn("Upload completed but response was:", resultText);
-                            showModal(`Upload status: ${resultText}`);
-                        }
-                    } catch (err) {
-                        console.error("Upload fetch error:", err);
-                        showModal(`Upload failed. Network error or script issue. ${err.message}`);
-                    } finally {
-                        if (!cell.classList.contains("done")) {
-                            uploadBtn.disabled = false;
-                            uploadBtn.textContent = "Upload Picture";
-                            if(fileToUpload){
-                                takePicBtn.disabled = true;
-                                removePicBtn.disabled = false;
-                                removePicBtn.classList.add("active");
-                            } else {
-                                takePicBtn.disabled = false;
-                                removePicBtn.disabled = true;
-                                removePicBtn.classList.remove("active");
-                            }
-                        }
-                        if (messageModal.style.display === 'flex') {
-                            modalSpinner.style.display = 'none';
-                            modalCloseButton.style.display = 'block';
-                        }
-                    }
-                };
-                reader.readAsDataURL(fileToUpload);
-            };
+                        if (!response.ok) {
+                            console.error("Upload failed with status:", response.status, resultText);
+                            showModal(`Upload failed: ${resultText || response.statusText}`);
+                        } else if (resultText.toLowerCase().includes("success")) {
+                            showModal(resultText);
+                            cell.classList.add("done");
+                            takePicBtn.disabled = true;
+                            removePicBtn.disabled = true;
+                            removePicBtn.classList.remove("active");
+                            uploadBtn.disabled = true;
+                            uploadBtn.classList.remove("active");
+                            uploadBtn.textContent = "Uploaded";
+                        } else {
+                            console.warn("Upload completed but response was:", resultText);
+                            showModal(`Upload status: ${resultText}`);
+                        }
+                    } catch (err) {
+                        console.error("Upload fetch error:", err);
+                        showModal(`Upload failed. Network error or script issue. ${err.message}`);
+                    } finally {
+                        if (!cell.classList.contains("done")) {
+                            uploadBtn.disabled = false;
+                            uploadBtn.textContent = "Upload Picture";
+                            if(fileToUpload){
+                                takePicBtn.disabled = true;
+                                removePicBtn.disabled = false;
+                                removePicBtn.classList.add("active");
+                            } else {
+                                takePicBtn.disabled = false;
+                                removePicBtn.disabled = true;
+                                removePicBtn.classList.remove("active");
+                            }
+                        }
+                        if (messageModal.style.display === 'flex') {
+                            modalSpinner.style.display = 'none';
+                            modalCloseButton.style.display = 'block';
+                        }
+                    }
+                };
+                reader.readAsDataURL(fileToUpload);
+            };
 
-            controls.appendChild(takePicBtn);
-            controls.appendChild(removePicBtn);
-            controls.appendChild(uploadBtn);
-            cell.appendChild(cameraInput); 
+            controls.appendChild(takePicBtn);
+            controls.appendChild(removePicBtn);
+            controls.appendChild(uploadBtn);
+            cell.appendChild(cameraInput); 
 
-            cell.appendChild(label);
-            cell.appendChild(imagePreview); 
-            cell.appendChild(controls);
-            grid.appendChild(cell);
-        });
-    </script>
+            cell.appendChild(label);
+            cell.appendChild(imagePreview); 
+            cell.appendChild(controls);
+            grid.appendChild(cell);
+        });
+    </script>
 </body>
 </html>
