@@ -7,12 +7,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            font-family: 'Inter', Arial, sans-serif; /* Using Inter font */
+            font-family: 'Inter', Arial, sans-serif;
             text-align: center;
-            margin: 0; /* Reset margin */
-            padding: 20px; /* Add padding to body */
+            margin: 0;
+            padding: 20px; /* Padding for the body */
             display: flex;
-            justify-content: center;
+            justify-content: center; /* Centers grid when it's narrower than viewport */
             align-items: center;
             flex-direction: column;
             min-height: 100vh;
@@ -24,51 +24,38 @@
             text-transform: uppercase;
             margin-bottom: 20px;
             color: #1f2937; /* Tailwind gray-800 */
-            font-weight: 700; /* Tailwind font-bold */
+            font-weight: 900; /* Tailwind font-black - THIS MAKES IT EXTRA BOLD */
         }
         .grid {
             display: grid;
-            grid-template-columns: repeat(1, 1fr); /* Default to 1 column for mobile */
-            gap: 15px; /* Increased gap */
-            width: 100%;
-            max-width: 1200px; /* Max width for larger screens */
-            margin: 0 auto;
+            /* Always 5 columns. Cells won't shrink below 90px.
+               If 5*90px + gaps > viewport, horizontal scroll will occur on the page. */
+            grid-template-columns: repeat(5, minmax(90px, 1fr));
+            gap: 10px; /* Adjusted gap */
+            width: 100%; /* Makes grid try to fit its container width initially */
+            max-width: 1200px; /* Max width for larger screens, centered by body's flex */
+            /* margin: 0 auto; (Centering handled by body's flex properties when grid is narrower than viewport) */
+            padding: 5px; /* Optional: padding around the cells within the grid container */
+            box-sizing: border-box; /* Ensures padding and border are included in width/height */
         }
-        /* Responsive grid columns */
-        @media (min-width: 640px) { /* sm breakpoint */
-            .grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        @media (min-width: 768px) { /* md breakpoint */
-            .grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-        @media (min-width: 1024px) { /* lg breakpoint */
-            .grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
-        @media (min-width: 1280px) { /* xl breakpoint */
-            .grid {
-                grid-template-columns: repeat(5, 1fr);
-            }
-        }
+        /* REMOVED media queries that changed grid-template-columns for .grid
+           It will now always be 5 columns as defined above.
+        */
         .cell {
             border: 1px solid #d1d5db; /* Tailwind gray-300 */
-            padding: 15px; /* Increased padding */
+            padding: 15px;
             border-radius: 12px; /* Tailwind rounded-xl */
             position: relative;
             background-color: #ffffff; /* Tailwind white */
             display: flex;
             flex-direction: column;
-            justify-content: space-between; /* Distribute space */
+            justify-content: space-between;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Tailwind shadow-md */
             transition: transform 0.2s ease-in-out;
+            min-height: 180px; /* Give cells a bit more min-height for consistency */
         }
         .cell:hover {
-            transform: translateY(-5px); /* Slight lift on hover */
+            transform: translateY(-5px);
         }
         .cell.done {
             background-color: #d1fae5; /* Tailwind green-100 */
@@ -88,14 +75,14 @@
             font-weight: 600; /* Tailwind font-semibold */
             margin-bottom: 12px;
             color: #374151; /* Tailwind gray-700 */
-            min-height: 40px; /* Ensure prompts have some min height */
+            min-height: 40px; 
         }
         .controls {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 8px;
-            margin-top: auto; /* Push controls to the bottom */
+            margin-top: auto;
         }
         .controls button {
             font-size: 0.875rem; /* Tailwind text-sm */
@@ -107,15 +94,12 @@
             transition: background-color 0.3s ease, color 0.3s ease, opacity 0.3s ease;
             cursor: pointer;
         }
-        /* Default button state (often for disabled) */
         .controls button:disabled {
             background-color: #e5e7eb; /* Tailwind gray-200 */
             color: #9ca3af; /* Tailwind gray-400 */
             cursor: not-allowed;
             opacity: 0.7;
         }
-
-        /* Take Picture Button */
         .controls button.take-pic-btn {
             background-color: #3b82f6; /* Tailwind blue-500 */
             color: white;
@@ -123,8 +107,6 @@
         .controls button.take-pic-btn:hover:not(:disabled) {
             background-color: #2563eb; /* Tailwind blue-600 */
         }
-
-        /* Remove Picture Button */
         .controls button.remove-pic-btn {
             background-color: #ef4444; /* Tailwind red-500 */
             color: white;
@@ -132,23 +114,19 @@
         .controls button.remove-pic-btn:hover:not(:disabled) {
             background-color: #dc2626; /* Tailwind red-600 */
         }
-         /* Make remove button initially appear disabled if no pic */
         .controls button.remove-pic-btn:not(.active) {
-            background-color: #e5e7eb; /* Tailwind gray-200 */
-            color: #9ca3af; /* Tailwind gray-400 */
+            background-color: #e5e7eb;
+            color: #9ca3af;
             cursor: not-allowed;
         }
         .controls button.remove-pic-btn.active {
-             background-color: #ef4444; /* Tailwind red-500 */
+             background-color: #ef4444;
             color: white;
             cursor: pointer;
         }
          .controls button.remove-pic-btn.active:hover {
-            background-color: #dc2626; /* Tailwind red-600 */
+            background-color: #dc2626;
         }
-
-
-        /* Upload Picture Button */
         .controls button.upload-btn {
             background-color: #10b981; /* Tailwind green-500 */
             color: white;
@@ -156,30 +134,27 @@
          .controls button.upload-btn:hover:not(:disabled) {
             background-color: #059669; /* Tailwind green-600 */
         }
-        /* Make upload button initially appear disabled if no pic */
         .controls button.upload-btn:not(.active) {
-            background-color: #e5e7eb; /* Tailwind gray-200 */
-            color: #9ca3af; /* Tailwind gray-400 */
+            background-color: #e5e7eb;
+            color: #9ca3af;
             cursor: not-allowed;
         }
         .controls button.upload-btn.active {
-            background-color: #10b981; /* Tailwind green-500 */
+            background-color: #10b981;
             color: white;
             cursor: pointer;
         }
         .controls button.upload-btn.active:hover {
-            background-color: #059669; /* Tailwind green-600 */
+            background-color: #059669;
         }
-
-
         .camera-input {
             display: none;
         }
         .image-preview {
             margin-top: 10px;
-            margin-bottom: 10px; /* Add margin below preview */
+            margin-bottom: 10px;
             width: 100%;
-            height: 150px; /* Fixed height for consistent layout */
+            height: 120px; /* Slightly reduced height for smaller cells */
             border: 1px dashed #9ca3af; /* Tailwind gray-400 */
             border-radius: 8px; /* Tailwind rounded-lg */
             display: flex;
@@ -192,17 +167,17 @@
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
-            border-radius: 4px; /* Slightly rounded image corners */
+            border-radius: 4px;
         }
         .image-preview:empty::before {
-            content: "No image selected";
+            content: "No image"; /* Shortened placeholder */
             color: #6b7280; /* Tailwind gray-500 */
-            font-size: 0.875rem;
+            font-size: 0.75rem; /* Smaller font for placeholder */
         }
 
         /* Modal styles */
         .modal {
-            display: none; /* Hidden by default */
+            display: none; 
             position: fixed;
             z-index: 1000;
             left: 0;
@@ -210,7 +185,7 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0,0,0,0.5); /* Dim background */
+            background-color: rgba(0,0,0,0.5); 
             justify-content: center;
             align-items: center;
         }
@@ -230,7 +205,7 @@
             color: #374151;
         }
         .modal-button {
-            background-color: #3b82f6; /* Tailwind blue-500 */
+            background-color: #3b82f6; 
             color: white;
             padding: 10px 20px;
             border: none;
@@ -240,11 +215,11 @@
             transition: background-color 0.2s;
         }
         .modal-button:hover {
-            background-color: #2563eb; /* Tailwind blue-600 */
+            background-color: #2563eb; 
         }
         .loading-spinner {
-            border: 4px solid #f3f3f3; /* Light grey */
-            border-top: 4px solid #3b82f6; /* Blue */
+            border: 4px solid #f3f3f3; 
+            border-top: 4px solid #3b82f6; 
             border-radius: 50%;
             width: 30px;
             height: 30px;
@@ -255,12 +230,12 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
     </style>
 </head>
 <body>
     <h1>Human Bingo Challenge</h1>
-    <div class="grid" id="bingoGrid"></div>
+    <div class="grid" id="bingoGrid">
+        </div>
 
     <div id="messageModal" class="modal">
         <div class="modal-content">
@@ -282,8 +257,7 @@
             "Has curly hair", "Loves pineapple on pizza", "Carries a water bottle", "Can dance",
         ];
 
-        // IMPORTANT: This should be your DEPLOYED Apps Script Web App URL (ending in /exec)
-        const uploadUrl = "https://script.google.com/macros/s/AKfycbyHgxaXYRUpFWyzfYU6cByhuRGkhPQuYlcM7dUGNZOlZgg3SkVprL0_JU6RmPt3RsdoFQ/exec";
+        const uploadUrl = "https://script.google.com/macros/s/AKfycbwGdxK9gJKrmO5SD3i503D3gBLUcOF-b6okPoIimj2r6i4rUWKgsvQkG7QCrELMhpVdZQ/exec";
 
         const grid = document.getElementById("bingoGrid");
         const messageModal = document.getElementById('messageModal');
@@ -291,38 +265,32 @@
         const modalCloseButton = document.getElementById('modalCloseButton');
         const modalSpinner = document.getElementById('modalSpinner');
 
-        // Function to show modal
         function showModal(message, showSpinner = false) {
             modalMessageText.textContent = message;
             modalSpinner.style.display = showSpinner ? 'block' : 'none';
-            modalCloseButton.style.display = showSpinner ? 'none' : 'block'; // Hide button if spinner shown
+            modalCloseButton.style.display = showSpinner ? 'none' : 'block';
             messageModal.style.display = 'flex';
         }
 
-        // Close modal
         modalCloseButton.onclick = () => {
             messageModal.style.display = 'none';
         };
-        // Close modal if user clicks outside of it
         window.onclick = (event) => {
             if (event.target == messageModal) {
-                // only close if spinner is not active
                 if (modalSpinner.style.display === 'none') {
                      messageModal.style.display = "none";
                 }
             }
         }
 
-        // Check if the uploadUrl is still the placeholder
         if (uploadUrl === "YOUR_APPS_SCRIPT_WEB_APP_URL_HERE") {
             showModal("Configuration needed: Please update the 'uploadUrl' in the script with your Google Apps Script web app URL.");
         }
 
-
         prompts.forEach((promptText, index) => {
             const cell = document.createElement("div");
             cell.classList.add("cell");
-            cell.dataset.id = `cell-${index}`; // Unique ID for the cell
+            cell.dataset.id = `cell-${index}`;
 
             const label = document.createElement("div");
             label.classList.add("prompt");
@@ -341,12 +309,12 @@
             const removePicBtn = document.createElement("button");
             removePicBtn.textContent = "Remove Picture";
             removePicBtn.classList.add("remove-pic-btn");
-            removePicBtn.disabled = true; // Initially disabled
+            removePicBtn.disabled = true;
 
             const uploadBtn = document.createElement("button");
             uploadBtn.textContent = "Upload Picture";
             uploadBtn.classList.add("upload-btn");
-            uploadBtn.disabled = true; // Initially disabled
+            uploadBtn.disabled = true;
 
             const cameraInput = document.createElement("input");
             cameraInput.type = "file";
@@ -404,7 +372,6 @@
                     showModal("No image selected to upload!");
                     return;
                 }
-                // Check if the uploadUrl is still the placeholder before attempting upload
                 if (uploadUrl === "YOUR_APPS_SCRIPT_WEB_APP_URL_HERE") {
                     showModal("Upload failed: Apps Script URL is not configured in the HTML. Please set the 'uploadUrl' variable.");
                     return;
