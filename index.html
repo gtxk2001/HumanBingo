@@ -63,15 +63,16 @@
         }
         .cell {
             border: 1px solid #d1d5db; /* Tailwind gray-300 */
-            padding: 15px; /* Increased padding */
+            padding: 15px;
             border-radius: 12px; /* Tailwind rounded-xl */
             position: relative;
             background-color: #ffffff; /* Tailwind white */
             display: flex;
             flex-direction: column;
-            justify-content: space-between; /* Distribute space */
+            justify-content: space-between;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Tailwind shadow-md */
             transition: transform 0.2s ease-in-out;
+            min-height: 180px; /* Give cells a bit more min-height for consistency */
         }
         .cell:hover {
             transform: translateY(-5px); /* Slight lift on hover */
